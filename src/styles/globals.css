@@ -5,4 +5,23 @@
 /* Ajoutez des styles personnalisés ici */
 body {
   font-family: 'Inter', sans-serif;
+  /* Ajoutez des animations de swipe */
+@keyframes swipe-left {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-100%);
+  }
+}
+
+@keyframes swipe-right {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(100%);
+  }
+}
+
 }

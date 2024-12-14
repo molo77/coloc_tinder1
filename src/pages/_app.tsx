@@ -1,16 +1,19 @@
-import { GeistSans } from "geist/font/sans";
-import { type AppType } from "next/app";
+import type { AppProps } from 'next/app';
+import { withTRPC } from '@trpc/next';
+import { AppRouter } from '../server/routers/_app';
+import superjson from 'superjson';
+import '../styles/globals.css';
 
-import { api } from "~/utils/api";
+function MyApp({ Component, pageProps }: AppProps) {
+  return <Component {...pageProps} />;
+}
 
-import "~/styles/globals.css";
-
-const MyApp: AppType = ({ Component, pageProps }) => {
-  return (
-    <div className={GeistSans.className}>
-      <Component {...pageProps} />
-    </div>
-  );
-};
-
-export default api.withTRPC(MyApp);
+export default withTRPC<AppRouter>({
+  config() {
+    return {
+      url: '/api/trpc', // L'URL de l'API tRPC côté serveur
+      transformer: superjson, // Sérialisation des données pour tRPC
+    };
+  },
+  ssr: false, // Désactiver le rendu côté serveur pour tRPC (peut être activé si nécessaire)
+})(MyApp);

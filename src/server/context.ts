@@ -1,8 +1,9 @@
-import { type CreateNextContextOptions } from "@trpc/server/adapters/next";
+import { PrismaClient } from '@prisma/client';
 
-// Context for tRPC
-export function createContext({ req, res }: CreateNextContextOptions) {
-  return {};
+const prisma = new PrismaClient();
+
+export async function createContext() {
+  return { prisma };
 }
 
-export type Context = ReturnType<typeof createContext>;
+export type Context = Awaited<ReturnType<typeof createContext>>;

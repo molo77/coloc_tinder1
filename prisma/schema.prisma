@@ -9,14 +9,12 @@ generator client {
 
 model User {
   id        Int      @id @default(autoincrement())
+  name      String
   email     String   @unique
-  name      String?
-  image     String?
+  age       Int
+  image     String
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  listings       Listing[]
-  matchedMatches Match[]
+  listings  Listing[]
 }
 
 model Listing {
@@ -28,15 +26,4 @@ model Listing {
   ownerId     Int
   owner       User     @relation(fields: [ownerId], references: [id])
   createdAt   DateTime @default(now())
-
-  matches Match[]
-}
-
-model Match {
-  id           Int      @id @default(autoincrement())
-  listingId    Int
-  listing      Listing  @relation(fields: [listingId], references: [id])
-  matchedUserId Int
-  matchedUser  User     @relation(fields: [matchedUserId], references: [id])
-  createdAt    DateTime @default(now())
 }

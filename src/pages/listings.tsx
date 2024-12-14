@@ -4,8 +4,8 @@ const ListingList = dynamic(() => import('../components/ListingList'), { ssr: fa
 
 export default function ListingsPage() {
   return (
-    <div style={{ fontFamily: 'Arial, sans-serif', padding: '2rem' }}>
-      <h1>Listings</h1>
+    <div className="container mx-auto px-6 py-12">
+      <h1 className="text-3xl font-bold mb-6">Annonces disponibles</h1>
       <ListingList />
     </div>
   );

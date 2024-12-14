@@ -1,56 +1,45 @@
-import { useState } from "react";
-import { useSwipeable } from "react-swipeable";
-
-const colocataires = [
-  { id: 1, name: "Alice", age: 24, description: "Étudiante en design, aime voyager.", image: "/images/alice.jpg" },
-  { id: 2, name: "Bob", age: 27, description: "Développeur, fan de jeux vidéo.", image: "/images/bob.jpg" },
-  { id: 3, name: "Charlie", age: 22, description: "Passionné de cuisine et de sport.", image: "/images/charlie.jpg" },
-];
+import { useState } from 'react';
+import { useSwipeable } from 'react-swipeable';
+import { trpc } from '../utils/trpc';
 
 export default function ColocTinder() {
+  const { data: users = [], isLoading, error } = trpc.user.list.useQuery();
   const [index, setIndex] = useState(0);
 
-  const handlers = useSwipeable({
-    onSwipedLeft: () => handlePass(),
-    onSwipedRight: () => handleLike(),
-    preventScrollOnSwipe: true,
-    trackMouse: true,
-  });
+  if (isLoading) return <div>Loading...</div>;
+  if (error) return <div>Error: {error.message}</div>;
 
-  const handleLike = () => {
-    alert(`Vous avez liké ${colocataires[index].name} !`);
-    nextCard();
-  };
+  // Vérifiez que les utilisateurs sont bien un tableau
+  if (!Array.isArray(users) || users.length === 0) {
+    return <div>Aucun utilisateur disponible.</div>;
+  }
+
+  const currentUser = users[index];
 
   const handlePass = () => {
-    alert(`Vous avez passé ${colocataires[index].name}.`);
-    nextCard();
-  };
-
-  const nextCard = () => {
-    if (index < colocataires.length - 1) {
+    if (index < users.length - 1) {
       setIndex(index + 1);
     } else {
-      alert("Vous avez vu tous les colocataires !");
+      alert('Plus de colocataires à afficher.');
     }
   };
 
-  const currentColoc = colocataires[index];
+  const handleLike = () => {
+    alert(`Vous avez liké ${currentUser.name}!`);
+    handlePass();
+  };
 
   return (
     <div className="flex justify-center items-center h-screen bg-gray-100">
-      {currentColoc ? (
-        <div
-          {...handlers}
-          className="w-80 bg-white rounded-lg shadow-md p-6 text-center"
-        >
+      {currentUser && (
+        <div className="w-80 bg-white rounded-lg shadow-md p-6 text-center">
           <img
-            src={currentColoc.image}
-            alt={currentColoc.name}
+            src={currentUser.image || '/placeholder.jpg'}
+            alt={currentUser.name}
             className="w-40 h-40 mx-auto rounded-full mb-4"
           />
-          <h2 className="text-xl font-bold">{currentColoc.name}, {currentColoc.age} ans</h2>
-          <p className="text-gray-600">{currentColoc.description}</p>
+          <h2 className="text-xl font-bold">{currentUser.name}</h2>
+          <p>Age: {currentUser.age}</p>
           <div className="flex justify-between mt-6">
             <button
               onClick={handlePass}
@@ -66,8 +55,6 @@ export default function ColocTinder() {
             </button>
           </div>
         </div>
-      ) : (
-        <h2 className="text-xl font-bold">Plus de colocataires à afficher.</h2>
       )}
     </div>
   );

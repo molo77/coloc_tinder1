@@ -1,13 +1,11 @@
-import { router } from "../trpc";
-import { postRouter } from "./post";
-import { userRouter } from "./user";
-import { listingRouter } from "./listing";
+import { router } from '../trpc'; // Importez votre helper tRPC
+import { listingRouter } from './listing'; // Routeur pour les annonces
+import { userRouter } from './user'; // Routeur pour les utilisateurs (si disponible)
 
 export const appRouter = router({
-  post: postRouter,
-  user: userRouter,
-  listing: listingRouter,
+  listing: listingRouter, // Regroupe les routes liées aux annonces
+  user: userRouter, // Regroupe les routes liées aux utilisateurs (si défini)
 });
 
-// Export type definition of API
+// Exportez le type AppRouter pour une utilisation avec le client tRPC
 export type AppRouter = typeof appRouter;

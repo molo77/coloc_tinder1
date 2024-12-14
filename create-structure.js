@@ -1,56 +1,49 @@
-import { promises as fs } from 'fs';
-import path from 'path';
+import { PrismaClient } from '@prisma/client';
 
-const structure = {
-  'prisma': ['schema.prisma'],
-  'src': {
-    'pages': {
-      'api': {
-        'trpc': ['[trpc].ts'],
+const prisma = new PrismaClient();
+
+async function main() {
+  // Créer 20 colocataires
+  const users = [];
+  for (let i = 1; i <= 20; i++) {
+    const user = await prisma.user.create({
+      data: {
+        name: `User ${i}`,
+        email: `user${i}@example.com`,
+        age: 20 + i,
+        image: `https://randomuser.me/api/portraits/${i % 2 === 0 ? 'men' : 'women'}/${i}.jpg`,
       },
-      'auth': ['[...nextauth].ts'],
-    },
-    'components': ['ListingCard.tsx', 'MatchCard.tsx'],
-    'styles': ['globals.css'],
-    'utils': ['trpc.ts'],
-  },
-};
-
-async function createStructure(basePath, structure) {
-  for (const [key, value] of Object.entries(structure)) {
-    const targetPath = path.join(basePath, key);
-    if (typeof value === 'object') {
-      // Si c'est un objet, crée un répertoire et continue
-      try {
-        await fs.mkdir(targetPath, { recursive: true });
-        console.log(`Created directory: ${targetPath}`);
-      } catch (err) {
-        if (err.code !== 'EEXIST') throw err;
-      }
-      await createStructure(targetPath, value);
-    } else if (Array.isArray(value)) {
-      // Si c'est un tableau, crée des fichiers dans le répertoire
-      try {
-        await fs.mkdir(targetPath, { recursive: true });
-        console.log(`Created directory: ${targetPath}`);
-      } catch (err) {
-        if (err.code !== 'EEXIST') throw err;
-      }
-      for (const file of value) {
-        const filePath = path.join(targetPath, file);
-        try {
-          await fs.writeFile(filePath, '', { flag: 'wx' }); // Empêche de remplacer les fichiers existants
-          console.log(`Created file: ${filePath}`);
-        } catch (err) {
-          if (err.code !== 'EEXIST') throw err;
-        }
-      }
-    }
+    });
+    users.push(user);
   }
+
+  console.log(`✅ Created ${users.length} users`);
+
+  // Créer 20 colocations
+  const listings = [];
+  for (let i = 1; i <= 20; i++) {
+    const listing = await prisma.listing.create({
+      data: {
+        title: `Colocation ${i}`,
+        description: `This is a description for colocation ${i}.`,
+        location: `City ${i}`,
+        price: 500 + i * 50,
+        ownerId: users[i % users.length].id, // Assign to a random user
+      },
+    });
+    listings.push(listing);
+  }
+
+  console.log(`✅ Created ${listings.length} listings`);
 }
 
-// Démarrage du script
-const basePath = process.cwd(); // Point de départ : répertoire courant
-createStructure(basePath, structure).catch((err) => {
-  console.error(`Error: ${err.message}`);
-});
+main()
+  .then(() => {
+    console.log('🌱 Database seeded successfully');
+    prisma.$disconnect();
+  })
+  .catch((e) => {
+    console.error(e);
+    prisma.$disconnect();
+    process.exit(1);
+  });
